@@ -6,7 +6,7 @@ public class Estudiante extends Persona {
     private String curso;
 
     // Constructor
-    public Estudiante(int id, String nombre, String rut, String correo, String curso) {
+    public Estudiante(int id, String nombre, String rut, String curso, String correo) {
         super(id, nombre, rut, correo);
         this.curso = curso;
     }
