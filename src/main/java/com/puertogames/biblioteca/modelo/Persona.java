@@ -32,6 +32,6 @@ public abstract class Persona {
     // Polimosfismo con el toString y metodo abstracto
     @Override
     public String toString() {
-        return "| " + getTipo() + " | - |" + nombre + " | - " + rut;
+        return getTipo() + ": " + nombre + " (" + rut + ") ";
     }
 }

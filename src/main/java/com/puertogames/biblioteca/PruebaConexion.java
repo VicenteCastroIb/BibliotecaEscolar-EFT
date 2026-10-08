@@ -1,10 +1,9 @@
 package com.puertogames.biblioteca;
 
-import com.puertogames.biblioteca.conexion.DatabaseConnection;
-import com.puertogames.biblioteca.dao.CategoriaDAO;
-import com.puertogames.biblioteca.modelo.Categoria;
 
-import java.sql.SQLException;
+import com.puertogames.biblioteca.dao.LibroDAO;
+import com.puertogames.biblioteca.modelo.Categoria;
+import com.puertogames.biblioteca.modelo.Libro;
 
 public class PruebaConexion {
     public static void main(String[] args) {
