@@ -2,9 +2,8 @@ package com.puertogames.biblioteca.modelo;
 
 public class Estudiante extends Persona {
 
-    // Atributo propio y ENUM
+    // Atributo propio
     private String curso;
-    private Rol rol;
 
     // Constructor
     public Estudiante(int id, String nombre, String rut, String correo, String curso) {
