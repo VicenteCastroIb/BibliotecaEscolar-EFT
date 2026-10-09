@@ -1,16 +1,16 @@
 package com.puertogames.biblioteca;
 
+import com.puertogames.biblioteca.vista.VentanaLogin;
 
-import com.puertogames.biblioteca.dao.PrestamoDAO;
-import com.puertogames.biblioteca.modelo.Prestamo;
+import javax.swing.*;
 
-public class PruebaConexion {
+public class Main {
     public static void main(String[] args) {
-        PrestamoDAO prestamoDao = new PrestamoDAO();
-        for (Prestamo p : prestamoDao.listarNoDevueltos()) {
-            System.out.println("#" + p.getId() + " " + p.getEstudiante().getNombre()
-                    + " - " + p.getLibro() + " - vence " + p.getFechaDevolucion()
-                    + (p.estaAtrasado() ? " ⚠ ATRASADO" : ""));
-        }
+        try {
+            // Que las ventanas se vean como las de Windows
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ignored) { }
+
+        SwingUtilities.invokeLater(() -> new VentanaLogin().setVisible(true));
     }
 }
