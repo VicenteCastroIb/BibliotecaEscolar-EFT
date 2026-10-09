@@ -1,6 +1,8 @@
 package com.puertogames.biblioteca.dao;
 
 import com.puertogames.biblioteca.conexion.DatabaseConnection;
+import com.puertogames.biblioteca.modelo.Estudiante;
+import com.puertogames.biblioteca.modelo.Libro;
 import com.puertogames.biblioteca.modelo.Prestamo;
 
 import java.sql.Connection;
@@ -8,6 +10,8 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PrestamoDAO {
 
@@ -81,5 +85,46 @@ public class PrestamoDAO {
             e.printStackTrace();
             return false;
         }
+    }
+
+    private static final String SQL_BASE =
+            "SELECT prestamos.*, " +
+                    "estudiantes.nombre AS nombre_estudiante, estudiantes.rut AS rut_estudiante, " +
+                    "libros.titulo AS titulo_libro " +
+                    "FROM prestamos " +
+                    "JOIN estudiantes ON prestamos.id_estudiante = estudiantes.id " +
+                    "JOIN libros ON prestamos.id_libro = libros.id ";
+
+    // Prestamos activos
+    public List<Prestamo> listarNoDevueltos() {
+        List<Prestamo> lista = new ArrayList<>();
+        String sql = SQL_BASE + "WHERE prestamos.devuelto = FALSE ORDER BY prestamos.fecha_devolucion";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                // Armo un estudiante y un libro
+                Estudiante estudiante = new Estudiante(
+                        rs.getInt("id_estudiante"),
+                        rs.getString("nombre_estudiante"),
+                        rs.getString("rut_estudiante"),
+                        null, null);
+                Libro libro = new Libro(
+                        rs.getInt("id_libro"),
+                        rs.getString("titulo_libro"),
+                        null, null, null, 0, null);
+
+                lista.add(new Prestamo(
+                        rs.getInt("id"),
+                        estudiante,
+                        libro,
+                        rs.getDate("fecha_prestamo").toLocalDate(),
+                        rs.getDate("fecha_devolucion").toLocalDate(),
+                        rs.getBoolean("devuelto")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
     }
 }
