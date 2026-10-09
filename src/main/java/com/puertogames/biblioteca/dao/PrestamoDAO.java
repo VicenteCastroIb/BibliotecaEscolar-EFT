@@ -146,4 +146,23 @@ public class PrestamoDAO {
         }
         return lista;
     }
+
+    // Reporte de los libros mas prestados
+    public List<Object[]> librosMasPrestados() {
+        List<Object[]> filas = new ArrayList<>();
+        String sql = "SELECT libros.titulo, COUNT(prestamos.id) AS cantidad " +
+                "FROM prestamos " +
+                "JOIN libros ON prestamos.id_libro = libros.id " +
+                "GROUP BY libros.id, libros.titulo " +
+                "ORDER BY cantidad DESC";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                filas.add(new Object[]{ rs.getString("titulo"), rs.getInt("cantidad") });
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return filas;
+    }
 }
