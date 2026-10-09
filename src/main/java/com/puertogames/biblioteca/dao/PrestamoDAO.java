@@ -95,6 +95,26 @@ public class PrestamoDAO {
                     "JOIN estudiantes ON prestamos.id_estudiante = estudiantes.id " +
                     "JOIN libros ON prestamos.id_libro = libros.id ";
 
+    // Convierte la fila actual del ResultSet en un Prestamo
+    private Prestamo mapear(ResultSet rs) throws SQLException {
+        Estudiante estudiante = new Estudiante(
+                rs.getInt("id_estudiante"),
+                rs.getString("nombre_estudiante"),
+                rs.getString("rut_estudiante"),
+                null, null);
+        Libro libro = new Libro(
+                rs.getInt("id_libro"),
+                rs.getString("titulo_libro"),
+                null, null, null, 0, null);
+        return new Prestamo(
+                rs.getInt("id"),
+                estudiante,
+                libro,
+                rs.getDate("fecha_prestamo").toLocalDate(),
+                rs.getDate("fecha_devolucion").toLocalDate(),
+                rs.getBoolean("devuelto"));
+    }
+
     // Prestamos activos
     public List<Prestamo> listarNoDevueltos() {
         List<Prestamo> lista = new ArrayList<>();
@@ -102,25 +122,24 @@ public class PrestamoDAO {
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                // Armo un estudiante y un libro
-                Estudiante estudiante = new Estudiante(
-                        rs.getInt("id_estudiante"),
-                        rs.getString("nombre_estudiante"),
-                        rs.getString("rut_estudiante"),
-                        null, null);
-                Libro libro = new Libro(
-                        rs.getInt("id_libro"),
-                        rs.getString("titulo_libro"),
-                        null, null, null, 0, null);
+                lista.add(mapear(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
 
-                lista.add(new Prestamo(
-                        rs.getInt("id"),
-                        estudiante,
-                        libro,
-                        rs.getDate("fecha_prestamo").toLocalDate(),
-                        rs.getDate("fecha_devolucion").toLocalDate(),
-                        rs.getBoolean("devuelto")
-                ));
+    // Historial de prestamos de un estudiante
+    public List<Prestamo> listarPorEstudiante(int idEstudiante) {
+        List<Prestamo> lista = new ArrayList<>();
+        String sql = SQL_BASE + "WHERE prestamos.id_estudiante = ? ORDER BY prestamos.fecha_prestamo DESC";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, idEstudiante);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapear(rs));
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
