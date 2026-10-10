@@ -26,8 +26,8 @@ public class VentanaPrincipal extends JFrame {
 
         if (esBibliotecario) {
             panel.add(crearBoton("Gestión de libros", () -> new VentanaLibros(false).setVisible(true)));
-            panel.add(crearBoton("Gestión de categorías", () -> enConstruccion("Gestión de categorías")));
-            panel.add(crearBoton("Gestión de estudiantes", () -> enConstruccion("Gestión de estudiantes")));
+            panel.add(crearBoton("Gestión de categorías", () -> new VentanaCategorias().setVisible(true)));
+            panel.add(crearBoton("Gestión de estudiantes", () -> new VentanaEstudiantes().setVisible(true)));
         } else {
             panel.add(crearBoton("Consultar libros", () -> new VentanaLibros(true).setVisible(true)));
         }
