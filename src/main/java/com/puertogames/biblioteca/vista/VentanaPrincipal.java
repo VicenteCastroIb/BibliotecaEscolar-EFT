@@ -20,28 +20,25 @@ public class VentanaPrincipal extends JFrame {
         JPanel panel = new JPanel(new GridLayout(0, 1, 10, 10));
         panel.setBorder(new EmptyBorder(20, 30, 20, 30));
 
-        JLabel lblBienvenida = new JLabel("Bienvenido/a, " + usuario.getNombre() + " (" + usuario.getTipo() + ")");
-        panel.add(lblBienvenida);
+        panel.add(new JLabel("Bienvenido/a, " + usuario.getNombre() + " (" + usuario.getTipo() + ")"));
 
         boolean esBibliotecario = usuario.getRol() == Rol.BIBLIOTECARIO;
 
-        // Solo bibliotecario
         if (esBibliotecario) {
-            panel.add(crearBoton("Gestión de libros"));
-            panel.add(crearBoton("Gestión de categorías"));
-            panel.add(crearBoton("Gestión de estudiantes"));
+            panel.add(crearBoton("Gestión de libros", () -> new VentanaLibros(false).setVisible(true)));
+            panel.add(crearBoton("Gestión de categorías", () -> enConstruccion("Gestión de categorías")));
+            panel.add(crearBoton("Gestión de estudiantes", () -> enConstruccion("Gestión de estudiantes")));
+        } else {
+            panel.add(crearBoton("Consultar libros", () -> new VentanaLibros(true).setVisible(true)));
         }
 
-        // Ambos roles, prestamo, devolucion y consulta
-        panel.add(crearBoton("Préstamos y devoluciones"));
-        panel.add(crearBoton("Reportes"));
+        panel.add(crearBoton("Préstamos y devoluciones", () -> enConstruccion("Préstamos y devoluciones")));
+        panel.add(crearBoton("Reportes", () -> enConstruccion("Reportes")));
 
-        JButton btnSalir = new JButton("Cerrar sesión");
-        btnSalir.addActionListener(e -> {
+        panel.add(crearBoton("Cerrar sesión", () -> {
             new VentanaLogin().setVisible(true);
             dispose();
-        });
-        panel.add(btnSalir);
+        }));
 
         setContentPane(panel);
         pack();
@@ -49,10 +46,14 @@ public class VentanaPrincipal extends JFrame {
         setLocationRelativeTo(null);
     }
 
-    private JButton crearBoton(String texto) {
+    // Crea un boton que ejecuta la accion recibida
+    private JButton crearBoton(String texto, Runnable accion) {
         JButton boton = new JButton(texto);
-        boton.addActionListener(e ->
-                JOptionPane.showMessageDialog(this, "Módulo \"" + texto + "\" en construcción."));
+        boton.addActionListener(e -> accion.run());
         return boton;
+    }
+
+    private void enConstruccion(String modulo) {
+        JOptionPane.showMessageDialog(this, "Módulo \"" + modulo + "\" en construcción.");
     }
 }
