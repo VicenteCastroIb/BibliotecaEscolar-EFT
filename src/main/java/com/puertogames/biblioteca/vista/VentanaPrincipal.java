@@ -32,7 +32,7 @@ public class VentanaPrincipal extends JFrame {
             panel.add(crearBoton("Consultar libros", () -> new VentanaLibros(true).setVisible(true)));
         }
 
-        panel.add(crearBoton("Préstamos y devoluciones", () -> enConstruccion("Préstamos y devoluciones")));
+        panel.add(crearBoton("Préstamos y devoluciones", () -> new VentanaPrestamos(usuario).setVisible(true)));
         panel.add(crearBoton("Reportes", () -> enConstruccion("Reportes")));
 
         panel.add(crearBoton("Cerrar sesión", () -> {
