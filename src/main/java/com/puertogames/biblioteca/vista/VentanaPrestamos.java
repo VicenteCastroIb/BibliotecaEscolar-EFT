@@ -69,6 +69,12 @@ public class VentanaPrestamos extends JFrame {
         JButton btnDevolver = new JButton("Registrar devolución del préstamo seleccionado");
         JPanel inferior = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         inferior.add(btnDevolver);
+        // Solo la bibliotecaria ve la simulacion
+        if (estudianteFijo == null) {
+            JButton btnSimular = new JButton("Simular 5 préstamos simultáneos");
+            btnSimular.addActionListener(e -> simular());
+            inferior.add(btnSimular);
+        }
         add(inferior, BorderLayout.SOUTH);
 
         btnPrestar.addActionListener(e -> prestar());
@@ -153,5 +159,19 @@ public class VentanaPrestamos extends JFrame {
         } else {
             JOptionPane.showMessageDialog(this, error, "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void simular() {
+        Estudiante estudiante = (Estudiante) cmbEstudiante.getSelectedItem();
+        Libro libro = (Libro) cmbLibro.getSelectedItem();
+        lblEstado.setText("Simulando préstamos simultáneos...");
+
+        controller.simularPrestamosSimultaneos(estudiante, libro, 5, resumen -> {
+            lblEstado.setText(" ");
+            JOptionPane.showMessageDialog(this, resumen, "Resultado de la simulación",
+                    JOptionPane.INFORMATION_MESSAGE);
+            cargarCombos();
+            cargarTabla();
+        });
     }
 }

@@ -6,7 +6,10 @@ import com.puertogames.biblioteca.dao.PrestamoDAO;
 import com.puertogames.biblioteca.modelo.Estudiante;
 import com.puertogames.biblioteca.modelo.Libro;
 import com.puertogames.biblioteca.modelo.Prestamo;
-
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.SwingUtilities;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,5 +84,49 @@ public class PrestamoController {
         }
         return prestamoDAO.registrarDevolucion(prestamo) ? null
                 : "No se pudo registrar la devolución (quizás ya estaba devuelto).";
+    }
+
+    // Lanza 'cantidad' prestamos del msimo libro al mismo tiempo, cada uno en su propio hilo.
+    public void simularPrestamosSimultaneos(Estudiante estudiante, Libro libro, int cantidad,
+                                            Consumer<String> alTerminar) {
+        if (estudiante == null || libro == null) {
+            alTerminar.accept("Selecciona un estudiante y un libro.");
+            return;
+        }
+
+        // corre en hilo aparte
+        new Thread(() -> {
+            int stockInicial = libroDAO.obtenerPorId(libro.getId()).getStock();
+            AtomicInteger exitosos = new AtomicInteger(0);
+            AtomicInteger rechazados = new AtomicInteger(0);
+
+            // cantidad de hilos trabajando aparte
+            ExecutorService pool = Executors.newFixedThreadPool(cantidad);
+            for (int i = 0; i < cantidad; i++) {
+                pool.submit(() -> {
+                    boolean ok = prestamoDAO.registrarPrestamo(new Prestamo(estudiante, libro));
+                    if (ok) {
+                        exitosos.incrementAndGet();
+                    } else {
+                        rechazados.incrementAndGet();
+                    }
+                });
+            }
+
+            pool.shutdown();   // no se aceptan mas tareas
+            try {
+                pool.awaitTermination(30, TimeUnit.SECONDS);   // esperar a que terminen todas
+            } catch (InterruptedException ignored) { }
+
+            int stockFinal = libroDAO.obtenerPorId(libro.getId()).getStock();
+            String resumen = "Libro: " + libro.getTitulo()
+                    + "\nStock inicial: " + stockInicial
+                    + "\nSolicitudes simultáneas: " + cantidad
+                    + "\nPréstamos registrados: " + exitosos.get()
+                    + "\nRechazados por falta de stock: " + rechazados.get()
+                    + "\nStock final: " + stockFinal;
+
+            SwingUtilities.invokeLater(() -> alTerminar.accept(resumen));
+        }, "hilo-simulacion").start();
     }
 }
